@@ -42,58 +42,58 @@ const data = {
   ],
   navMain: [
     {
-      title: "Dashboard",
+      title: "Calculator",
       url: "/dashboard",
       icon: LayoutDashboard,
     },
-    {
-      title: "Products",
-      url: "/dashboard/products",
-      icon: Boxes,
-    },
-    {
-      title: "Orders",
-      url: "/dashboard/orders",
-      icon: ShoppingCart,
-    },
-    {
-      title: "Reports",
-      url: "#",
-      icon: NotepadText,
-      items: [
-        {
-          title: "Overview",
-          url: "#",
-        },
-        {
-          title: "Sales",
-          url: "#",
-        },
-        {
-          title: "Refunds",
-          url: "#",
-        },
-        {
-          title: "Inventory",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Appearance",
-          url: "#",
-        },
-      ],
-    },
+    // {
+    //   title: "Products",
+    //   url: "/dashboard/products",
+    //   icon: Boxes,
+    // },
+    // {
+    //   title: "Orders",
+    //   url: "/dashboard/orders",
+    //   icon: ShoppingCart,
+    // },
+    // {
+    //   title: "Reports",
+    //   url: "#",
+    //   icon: NotepadText,
+    //   items: [
+    //     {
+    //       title: "Overview",
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Sales",
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Refunds",
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Inventory",
+    //       url: "#",
+    //     },
+    //   ],
+    // },
+    // {
+    //   title: "Settings",
+    //   url: "#",
+    //   icon: Settings,
+    //   items: [
+    //     {
+    //       title: "General",
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Appearance",
+    //       url: "#",
+    //     },
+    //   ],
+    // },
   ],
 };
 
