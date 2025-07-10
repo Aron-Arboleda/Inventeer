@@ -14,6 +14,17 @@ import { RecentSales } from "~/features/dashboard/components/recent-sales";
 import type { Route } from "./+types";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { useEffect, useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
+import { Button as ShadcnButton } from "~/components/ui/button";
 
 export const meta: Route.MetaFunction = () => {
   return [{ title: "Calculator" }];
@@ -35,12 +46,119 @@ function Page() {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<FormValues>();
 
+  const [generatedRows, setGeneratedRows] = useState<any[]>([]);
+
+  // Watch itemCode and lastSerial
+  const itemCode = watch("itemCode");
+  const lastSerial = watch("lastSerial");
+
+  useEffect(() => {
+    // Only run if both fields are filled
+    if (itemCode && lastSerial) {
+      // SGTIN-96 encoding logic
+      // Example: itemCode '5057877131530', lastSerial '9000' => '303534B5540CD84000002329'
+      function encodeSgtin96(gtin: string, serial: string) {
+        // SGTIN-96 encoding for 7-digit company prefix (partition 5)
+        gtin = gtin.padStart(14, "0");
+        // Remove check digit (last digit)
+        const gtin13 = gtin.slice(0, 13);
+        // Company prefix: 7 digits after indicator
+        const companyPrefix = gtin13.slice(1, 8);
+        // Item reference: next 6 digits after company prefix
+        const itemRef = gtin13.slice(8, 14);
+        // Partition: 5 (7-digit company prefix)
+        const filter = 1; // POS item
+        const partition = 5;
+        // Convert to binary fields
+        const header = 0x30; // 8 bits
+        const companyPrefixNum = BigInt(companyPrefix);
+        const itemRefNum = BigInt(itemRef);
+        const serialNum = BigInt(serial) + 1n;
+        // Build the 96 bits (partition 5: companyPrefix 24 bits, itemRef 20 bits)
+        let bin = BigInt(header) << 88n; // 8 bits
+        bin |= BigInt(filter) << 85n; // 3 bits
+        bin |= BigInt(partition) << 82n; // 3 bits
+        bin |= companyPrefixNum << 58n; // 24 bits
+        bin |= itemRefNum << 38n; // 20 bits
+        bin |= serialNum; // 38 bits
+        // Convert to 24 hex chars
+        return bin.toString(16).toUpperCase().padStart(24, "0");
+      }
+      const sgtin = encodeSgtin96(itemCode, lastSerial);
+      setValue("firstSgtin", sgtin);
+    } else {
+      setValue("firstSgtin", "");
+    }
+  }, [itemCode, lastSerial, setValue]);
+
+  function encodeSgtin96(gtin: string, serial: string) {
+    gtin = gtin.padStart(14, "0");
+    const gtin13 = gtin.slice(0, 13);
+    const companyPrefix = gtin13.slice(1, 8);
+    const itemRef = gtin13.slice(8, 14);
+    const filter = 1;
+    const partition = 5;
+    const header = 0x30;
+    const companyPrefixNum = BigInt(companyPrefix);
+    const itemRefNum = BigInt(itemRef);
+    const serialNum = BigInt(serial);
+    let bin = BigInt(header) << 88n;
+    bin |= BigInt(filter) << 85n;
+    bin |= BigInt(partition) << 82n;
+    bin |= companyPrefixNum << 58n;
+    bin |= itemRefNum << 38n;
+    bin |= serialNum; // 38 bits
+    return bin.toString(16).toUpperCase().padStart(24, "0");
+  }
+
   const onSubmit = (data: FormValues) => {
-    // handle form submission
-    console.log(data);
+    // Generate table rows based on qtyToGenerate
+    const rows = [];
+    const startSerial = parseInt(data.lastSerial, 10) + 1;
+    for (let i = 0; i < data.qtyToGenerate; i++) {
+      const serial = startSerial + i;
+      const sgtin = encodeSgtin96(data.itemCode, serial.toString());
+      rows.push({
+        styleNumber: data.styleNumber,
+        itemName: data.itemName,
+        color: data.color,
+        size: data.size,
+        itemCode: data.itemCode,
+        serial: serial,
+        sgtin,
+      });
+    }
+    setGeneratedRows(rows);
+  };
+
+  // Copy table to clipboard as tab-separated values
+  const handleCopyTable = () => {
+    if (generatedRows.length === 0) return;
+    const header = [
+      "Style Number",
+      "Item Name",
+      "Color",
+      "Size",
+      "Item Code",
+      "Serial",
+      "SGTIN-96 Hex (EPC Memory Bank Contents)",
+    ];
+    const rows = generatedRows.map((row) => [
+      row.styleNumber,
+      row.itemName,
+      row.color,
+      row.size,
+      row.itemCode,
+      row.serial,
+      row.sgtin,
+    ]);
+    const tsv = [header, ...rows].map((r) => r.join("\t")).join("\n");
+    navigator.clipboard.writeText(tsv);
   };
 
   return (
@@ -165,6 +283,56 @@ function Page() {
           </div>
         </div>
       </form>
+      {generatedRows.length > 0 && (
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold">Generated SGTIN Table</h3>
+            <ShadcnButton
+              type="button"
+              onClick={handleCopyTable}
+              variant="outline"
+            >
+              Copy Table for Google Sheets
+            </ShadcnButton>
+          </div>
+          <Table>
+            <TableCaption>
+              SGTIN-96 Hex (EPC Memory Bank Contents) for generated serials.
+            </TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Style Number</TableHead>
+                <TableHead>Item Name</TableHead>
+                <TableHead>Color</TableHead>
+                <TableHead>Size</TableHead>
+                <TableHead>Item Code</TableHead>
+                <TableHead>Serial</TableHead>
+                <TableHead>SGTIN-96 Hex (EPC Memory Bank Contents)</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {generatedRows.map((row, idx) => (
+                <TableRow key={idx}>
+                  <TableCell>{row.styleNumber}</TableCell>
+                  <TableCell>{row.itemName}</TableCell>
+                  <TableCell>{row.color}</TableCell>
+                  <TableCell>{row.size}</TableCell>
+                  <TableCell>{row.itemCode}</TableCell>
+                  <TableCell>{row.serial}</TableCell>
+                  <TableCell className="font-mono">{row.sgtin}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <div className="mt-2 text-sm text-muted-foreground">
+            <span>
+              After pasting into Google Sheets, select the table and set font to
+              Calibri, size 16, bold the header, and add 1px black borders for
+              best results.
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
