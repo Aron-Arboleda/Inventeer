@@ -203,20 +203,18 @@ function BulkGenerator() {
       <h2 className="text-3xl font-bold tracking-tight">Bulk Generator</h2>
 
       <form onSubmit={handleSubmit(onSubmit)}>
+        <h3 className="text-xl font-semibold my-4">Order Data</h3>
+        <Label htmlFor="pasted-data">Paste your order data here</Label>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Input Section */}
-          <div className="col-span-1 md:col-span-2 lg:col-span-1 space-y-4">
-            <h3 className="text-xl font-semibold">1. Paste Order Data</h3>
+          <div className="col-span-1 md:col-span-2 lg:col-span-2 space-y-4">
             <div className="flex flex-col space-y-2">
-              <Label htmlFor="pasted-data">
-                Paste your order data here (Tab-separated values)
-              </Label>
               <Textarea
                 id="pasted-data"
-                placeholder="Paste data from spreadsheet (e.g., Style&#09;Size&#09;Color&#09;Item Name&#09;&#09;Item Code&#09;Qty)"
-                rows={10}
+                placeholder="Paste data from spreadsheet, format: (Style    Size    Color    Item Name    Item Code    Qty    Last Serial)"
+                rows={5}
                 {...register("pastedData", {
-                  required: "Pasted data is required",
+                  required: "Orders data is required",
                 })}
                 onFocus={handleSelectAll}
               />
@@ -284,7 +282,7 @@ function BulkGenerator() {
       {/* Results Section */}
       {processedOrderEntries.length > 0 && (
         <div className="mt-8 space-y-6">
-          <h3 className="text-xl font-semibold">2. View Generated Records</h3>
+          <h3 className="text-xl font-semibold">Generated Records</h3>
 
           {/* Tabs for selecting order entry */}
           <Tabs
@@ -292,14 +290,14 @@ function BulkGenerator() {
             onValueChange={setSelectedEntryId}
             className="w-full"
           >
-            <TabsList className="flex flex-wrap h-auto min-h-[40px]">
+            <TabsList className="flex flex-wrap h-auto min-h-[40px] justify-start">
               {processedOrderEntries.map((entry) => (
                 <TabsTrigger
                   key={entry.id}
                   value={entry.id}
                   className="flex-shrink-0 text-wrap py-2"
                 >
-                  {`${entry.styleNumber} - ${entry.itemName} (${entry.size} / ${entry.color})`}
+                  {`${entry.styleNumber} - (${entry.size})`}
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -309,7 +307,7 @@ function BulkGenerator() {
               <TabsContent key={entry.id} value={entry.id} className="mt-4">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-lg font-bold">
-                    Generated SGTINs for{" "}
+                    Masterfile for{" "}
                     {`${entry.styleNumber} - ${entry.itemName} (${entry.size} / ${entry.color})`}
                   </h4>
                   <Button
@@ -369,13 +367,6 @@ function BulkGenerator() {
                       ))}
                     </TableBody>
                   </Table>
-                </div>
-                <div className="mt-2 text-sm text-muted-foreground">
-                  <span>
-                    After pasting into Google Sheets, select the table and set
-                    font to Calibri, size 16, bold the header, and add 1px black
-                    borders for best results.
-                  </span>
                 </div>
               </TabsContent>
             ))}
