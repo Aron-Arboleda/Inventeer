@@ -25,24 +25,24 @@ import {
 const data = {
   stores: [
     {
-      name: "Acme Inc",
+      name: "Trackerteer",
       logo: GalleryVerticalEnd,
       plan: "Enterprise",
     },
     {
-      name: "Acme Corp.",
+      name: "Trackerteer Corp.",
       logo: AudioWaveform,
       plan: "Startup",
     },
     {
-      name: "Evil Corp.",
+      name: "Trackerteer Corp.",
       logo: Command,
       plan: "Free",
     },
   ],
   navMain: [
     {
-      title: "Calculator",
+      title: "Generator",
       url: "/dashboard",
       icon: LayoutDashboard,
     },

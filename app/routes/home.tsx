@@ -21,7 +21,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     <div className="flex h-screen items-center justify-center">
       <nav className="absolute top-0 left-0 right-0 flex justify-between p-4">
         <Link to="/" className="text-2xl font-bold">
-          My App
+          Inventeer
         </Link>
         <div className="space-x-4 text-sm">
           <Button asChild>
@@ -34,15 +34,15 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         </div>
       </nav>
       <div className="text-center">
-        <h1 className="text-6xl font-bold">Welcome to my app!</h1>
+        <h1 className="text-6xl font-bold">Inventeer</h1>
         <p className="mt-4 text-xl">
-          This is a simple landing page created with React Router, Vite, ShadCN
-          UI and Tailwind CSS.
+          This is a simple website that can generate tables of SGTIN-96 barcodes
+          for your products.
         </p>
-        <p className="mt-4 text-lg">
+        {/* <p className="mt-4 text-lg">
           You can see the value from Vercel in the loader data:{" "}
           {loaderData.message}
-        </p>
+        </p> */}
       </div>
     </div>
   );

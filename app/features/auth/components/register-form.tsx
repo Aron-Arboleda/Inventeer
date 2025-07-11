@@ -28,8 +28,8 @@ export function RegisterForm({
     mode: "onSubmit",
     resolver: registerResolver,
     defaultValues: {
-      fullName: "John Doe",
-      email: "admin@example.com",
+      fullName: "Aron Arboleda",
+      email: "aronrez62@gmail.com",
       password: "123456",
     },
   });
@@ -54,7 +54,7 @@ export function RegisterForm({
                     <FormItem>
                       <FormLabel>Full Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="John Doe" {...field} />
+                        <Input placeholder="Aron Arboleda" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

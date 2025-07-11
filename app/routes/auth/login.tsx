@@ -26,7 +26,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
   await authenticate({
     id: 1,
     email: data.email,
-    name: "John Doe",
+    name: "Aron Arboleda",
     image: "shadcn.jpg",
   });
 

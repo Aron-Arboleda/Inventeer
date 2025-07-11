@@ -28,7 +28,7 @@ export function LoginForm({
     mode: "onSubmit",
     resolver: loginResolver,
     defaultValues: {
-      email: "admin@example.com",
+      email: "aronrez62@gmail.com",
       password: "123456",
     },
   });

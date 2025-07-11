@@ -25,9 +25,11 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { Button as ShadcnButton } from "~/components/ui/button";
+import { encodeSgtin96 } from "~/utils/logic/sgtinGenerator";
+import { Loader2, Copy as CopyIcon, Check as CheckIcon } from "lucide-react";
 
 export const meta: Route.MetaFunction = () => {
-  return [{ title: "Calculator" }];
+  return [{ title: "Generator" }];
 };
 
 type FormValues = {
@@ -41,6 +43,17 @@ type FormValues = {
   qtyToGenerate: number;
 };
 
+const defaultValues: FormValues = {
+  styleNumber: "",
+  size: "",
+  itemName: "",
+  color: "",
+  itemCode: "",
+  lastSerial: "9000",
+  firstSgtin: "",
+  qtyToGenerate: 1,
+};
+
 function Page() {
   const {
     register,
@@ -49,9 +62,13 @@ function Page() {
     setValue,
     watch,
     formState: { errors },
-  } = useForm<FormValues>();
+  } = useForm<FormValues>({
+    defaultValues,
+  });
 
   const [generatedRows, setGeneratedRows] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Watch itemCode and lastSerial
   const itemCode = watch("itemCode");
@@ -96,28 +113,10 @@ function Page() {
     }
   }, [itemCode, lastSerial, setValue]);
 
-  function encodeSgtin96(gtin: string, serial: string) {
-    gtin = gtin.padStart(14, "0");
-    const gtin13 = gtin.slice(0, 13);
-    const companyPrefix = gtin13.slice(1, 8);
-    const itemRef = gtin13.slice(8, 14);
-    const filter = 1;
-    const partition = 5;
-    const header = 0x30;
-    const companyPrefixNum = BigInt(companyPrefix);
-    const itemRefNum = BigInt(itemRef);
-    const serialNum = BigInt(serial);
-    let bin = BigInt(header) << 88n;
-    bin |= BigInt(filter) << 85n;
-    bin |= BigInt(partition) << 82n;
-    bin |= companyPrefixNum << 58n;
-    bin |= itemRefNum << 38n;
-    bin |= serialNum; // 38 bits
-    return bin.toString(16).toUpperCase().padStart(24, "0");
-  }
-
-  const onSubmit = (data: FormValues) => {
-    // Generate table rows based on qtyToGenerate
+  const onSubmit = async (data: FormValues) => {
+    setIsLoading(true);
+    // Simulate async work for UX (remove setTimeout in production)
+    await new Promise((res) => setTimeout(res, 500));
     const rows = [];
     const startSerial = parseInt(data.lastSerial, 10) + 1;
     for (let i = 0; i < data.qtyToGenerate; i++) {
@@ -125,8 +124,8 @@ function Page() {
       const sgtin = encodeSgtin96(data.itemCode, serial.toString());
       rows.push({
         styleNumber: data.styleNumber,
-        itemName: data.itemName,
-        color: data.color,
+        itemName: data.itemName ? data.itemName : "-",
+        color: data.color ? data.color : "-",
         size: data.size,
         itemCode: data.itemCode,
         serial: serial,
@@ -134,6 +133,7 @@ function Page() {
       });
     }
     setGeneratedRows(rows);
+    setIsLoading(false);
   };
 
   // Copy table to clipboard as tab-separated values
@@ -159,11 +159,23 @@ function Page() {
     ]);
     const tsv = [header, ...rows].map((r) => r.join("\t")).join("\n");
     navigator.clipboard.writeText(tsv);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  const handleReset = () => {
+    reset(defaultValues);
+    setGeneratedRows([]);
+    setCopied(false);
+  };
+
+  const handleSelectAll = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.target.select();
   };
 
   return (
     <div className="flex-1 space-y-4 p-4 pt-0">
-      <h2 className="text-3xl font-bold tracking-tight">Calculator</h2>
+      <h2 className="text-3xl font-bold tracking-tight">Generator</h2>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-3">
@@ -178,6 +190,7 @@ function Page() {
                 placeholder="Style"
                 className="max-w-[250px]"
                 {...register("styleNumber")}
+                onFocus={handleSelectAll}
               />
             </div>
             <div className="flex w-full max-w-sm items-center justify-between gap-7">
@@ -190,6 +203,7 @@ function Page() {
                 placeholder="Size"
                 className="max-w-[250px]"
                 {...register("size")}
+                onFocus={handleSelectAll}
               />
             </div>
             <div className="flex w-full max-w-sm items-center justify-between gap-7">
@@ -202,6 +216,7 @@ function Page() {
                 placeholder="Item Name"
                 className="max-w-[250px]"
                 {...register("itemName")}
+                onFocus={handleSelectAll}
               />
             </div>
             <div className="flex w-full max-w-sm items-center justify-between gap-7">
@@ -214,6 +229,7 @@ function Page() {
                 placeholder="Color"
                 className="max-w-[250px]"
                 {...register("color")}
+                onFocus={handleSelectAll}
               />
             </div>
           </div>
@@ -228,6 +244,7 @@ function Page() {
                 placeholder="Item Code"
                 className="max-w-[250px]"
                 {...register("itemCode")}
+                onFocus={handleSelectAll}
               />
             </div>
             <div className="flex w-full max-w-sm items-center justify-between gap-7">
@@ -240,6 +257,7 @@ function Page() {
                 placeholder="Last Serial"
                 className="max-w-[250px]"
                 {...register("lastSerial")}
+                onFocus={handleSelectAll}
               />
             </div>
             <div className="flex w-full max-w-sm items-center justify-between gap-7">
@@ -250,9 +268,11 @@ function Page() {
                 type="text"
                 id="first-sgtin"
                 placeholder="First SGTIN-96"
-                className="max-w-[250px]"
+                className="max-w-[250px] cursor-text"
                 disabled={true}
+                style={{ cursor: "text" }}
                 {...register("firstSgtin")}
+                onFocus={handleSelectAll}
               />
             </div>
             <div className="flex w-full max-w-sm items-center justify-between gap-7">
@@ -265,18 +285,31 @@ function Page() {
                 placeholder="Qty to Generate"
                 className="max-w-[250px]"
                 {...register("qtyToGenerate", { valueAsNumber: true })}
+                onFocus={handleSelectAll}
               />
             </div>
           </div>
           <div className="flex flex-col items-start justify-start space-y-4 p-4 pt-0">
-            <Button className="w-full max-w-sm" type="submit">
-              Generate
+            <Button
+              className="w-full max-w-sm transition active:scale-95 duration-100 flex items-center justify-center"
+              type="submit"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                "Generate"
+              )}
             </Button>
             <Button
-              className="w-full max-w-sm"
+              className="w-full max-w-sm transition active:scale-95 duration-100"
               type="button"
-              onClick={() => reset()}
+              onClick={handleReset}
               variant="secondary"
+              disabled={isLoading}
             >
               Reset
             </Button>
@@ -291,8 +324,20 @@ function Page() {
               type="button"
               onClick={handleCopyTable}
               variant="outline"
+              className="transition active:scale-95 duration-100 flex items-center gap-2"
+              disabled={isLoading}
             >
-              Copy Table for Google Sheets
+              {copied ? (
+                <>
+                  <CheckIcon className="h-4 w-4 text-green-600 transition-all duration-200 scale-110" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <CopyIcon className="h-4 w-4 transition-all duration-200" />
+                  Copy Table
+                </>
+              )}
             </ShadcnButton>
           </div>
           <Table>
@@ -338,146 +383,3 @@ function Page() {
 }
 
 export default Page;
-
-{
-  /* <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="analytics" disabled>
-            Analytics
-          </TabsTrigger>
-          <TabsTrigger value="reports" disabled>
-            Reports
-          </TabsTrigger>
-          <TabsTrigger value="notifications" disabled>
-            Notifications
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Total Revenue
-                </CardTitle>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  className="h-4 w-4 text-muted-foreground"
-                >
-                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                </svg>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">$45,231.89</div>
-                <p className="text-xs text-muted-foreground">
-                  +20.1% from last month
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Subscriptions
-                </CardTitle>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  className="h-4 w-4 text-muted-foreground"
-                >
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                  <circle cx="9" cy="7" r="4" />
-                  <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-                </svg>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">+2350</div>
-                <p className="text-xs text-muted-foreground">
-                  +180.1% from last month
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Sales</CardTitle>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  className="h-4 w-4 text-muted-foreground"
-                >
-                  <rect width="20" height="14" x="2" y="5" rx="2" />
-                  <path d="M2 10h20" />
-                </svg>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">+12,234</div>
-                <p className="text-xs text-muted-foreground">
-                  +19% from last month
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Active Now
-                </CardTitle>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  className="h-4 w-4 text-muted-foreground"
-                >
-                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                </svg>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">+573</div>
-                <p className="text-xs text-muted-foreground">
-                  +201 since last hour
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-            <Card className="col-span-4">
-              <CardHeader>
-                <CardTitle>Overview</CardTitle>
-              </CardHeader>
-              <CardContent className="pl-2">
-                <Overview />
-              </CardContent>
-            </Card>
-            <Card className="col-span-3">
-              <CardHeader>
-                <CardTitle>Recent Sales</CardTitle>
-                <CardDescription>
-                  You made 265 sales this month.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <RecentSales />
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs> */
-}
