@@ -1,7 +1,7 @@
 import { Outlet } from "react-router";
 
 export const handle = {
-  breadcrumb: "Products",
+  breadcrumb: "Bulk Generator",
 };
 
 function Layout() {

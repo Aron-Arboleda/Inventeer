@@ -46,11 +46,11 @@ const data = {
       url: "/dashboard",
       icon: LayoutDashboard,
     },
-    // {
-    //   title: "Products",
-    //   url: "/dashboard/products",
-    //   icon: Boxes,
-    // },
+    {
+      title: "Bulk Generator",
+      url: "/dashboard/bulk-generator",
+      icon: Boxes,
+    },
     // {
     //   title: "Orders",
     //   url: "/dashboard/orders",

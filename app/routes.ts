@@ -17,11 +17,11 @@ export default [
   layout("routes/dashboard/layout.tsx", [
     ...prefix("dashboard", [
       index("routes/dashboard/index.tsx"),
-      ...prefix("products", [
-        layout("routes/dashboard/products/layout.tsx", [
-          index("routes/dashboard/products/index.tsx"),
-          route("new", "routes/dashboard/products/new.tsx"),
-          route(":id/edit", "routes/dashboard/products/edit.tsx"),
+      ...prefix("bulk-generator", [
+        layout("routes/dashboard/bulk-generator/layout.tsx", [
+          index("routes/dashboard/bulk-generator/index.tsx"),
+          route("new", "routes/dashboard/bulk-generator/new.tsx"),
+          route(":id/edit", "routes/dashboard/bulk-generator/edit.tsx"),
         ]),
       ]),
       ...prefix("orders", [

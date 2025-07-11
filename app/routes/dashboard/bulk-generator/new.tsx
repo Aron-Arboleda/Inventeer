@@ -1,8 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { Link } from "react-router";
 import { z } from "zod";
 
-import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -15,7 +15,6 @@ import {
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import { toast } from "~/hooks/use-toast";
-import type { Route } from "./+types/edit";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -26,10 +25,10 @@ const formSchema = z.object({
 });
 
 export const handle = {
-  breadcrumb: "Edit Product",
+  breadcrumb: "New Product",
 };
 
-function Page({ params }: Route.ComponentProps) {
+function Page() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
@@ -53,9 +52,7 @@ function Page({ params }: Route.ComponentProps) {
   return (
     <div className="flex-1 space-y-4">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">
-          Edit Product: {params.id}
-        </h2>
+        <h2 className="text-3xl font-bold tracking-tight">Products</h2>
       </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -132,7 +129,7 @@ function Page({ params }: Route.ComponentProps) {
           </div>
           <div className="flex gap-2">
             <Button variant="outline" asChild>
-              <Link to="/dashboard/products">Back</Link>
+              <Link to="/dashboard/bulk-generator">Back</Link>
             </Button>
             <Button type="submit">Submit</Button>
           </div>
