@@ -1,53 +1,69 @@
-# Welcome to React Router!
+# Inventeer: RFID SGTIN-96 Product Generator
 
-A modern, production-ready template for building full-stack React applications using React Router.
+Link: https://inventeer.vercel.app/
+
+A modern, production-ready web application for generating product records with attached RFID codes using the SGTIN-96 standard. Built for both single (per order) and bulk generation workflows, Inventeer streamlines the creation and export of RFID-tagged product data for manufacturing, logistics, and retail.
 
 ## Features
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+- 🏷️ Generate SGTIN-96 RFID codes for products (GS1/EPC compliant)
+- 📝 Per-order (single) and bulk product record generation
+- 📋 Copy/export results for use in Google Sheets or other systems
+- ⚡ Fast, modern UI with instant feedback and animations
+- 🖨️ Table output formatted for easy printing or spreadsheet import
+- 🔒 TypeScript for type safety
+- 🎨 TailwindCSS for styling
+- 🌐 Deployed on Vercel for instant updates
 
-## Getting Started
+## Technologies Used
 
-### Installation
+- **React** (with React Router) – UI and routing
+- **TypeScript** – Type safety
+- **Tailwind CSS** – Styling
+- **react-hook-form** – Form management
+- **shadcn/ui** – UI components
+- **lucide-react** – Icon set
+- **Vercel** – Deployment
+- **Node.js/Express** – Server-side rendering (SSR)
 
-Install the dependencies:
+## File Structure (Key Parts)
 
-```bash
-npm install
+```
+app/
+  routes/
+    dashboard/
+      index.tsx           # Per-order SGTIN-96 generator UI
+      bulk-generator/
+        index.tsx         # Bulk SGTIN-96 generator UI
+  components/             # Shared UI components
+  features/               # Feature modules (auth, dashboard, etc.)
+  hooks/                  # Custom React hooks
+  lib/                    # Utility functions
+  types/                  # TypeScript types
+  utils/                  # Logic (SGTIN-96 encoding, etc.)
+public/                   # Static assets
+server/                   # Server entry (SSR)
+vercel/                   # Vercel deployment scripts
 ```
 
-### Development
+### Deployment
 
-Start the development server with HMR:
+Deployed automatically to [Vercel](https://vercel.com/). Every push to `main` triggers a new deployment.
 
-```bash
-npm run dev
-```
+## Author
 
-Your application will be available at `http://localhost:3000`.
+- **Aron Arboleda**
+- [github.com/Aron-Arboleda](https://github.com/Aron-Arboleda)
 
-## Building for Production
+## Project Timeline
 
-Create a production build:
-
-```bash
-npm run build
-```
-
-## Deployment
-
-[![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fremix-run%2Freact-router-templates%2Ftree%2Fmain%2Fvercel&project-name=my-react-router-app&repository-name=my-react-router-app)
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
+- **Initial development:** July 2025
+- **Active maintenance:** Ongoing
 
 ---
 
-Built with ❤️ using React Router.
+Built with ❤️ using React Router, TypeScript, and modern web technologies.
+
+## License
+
+&copy; 2025 Aron Arboleda. All rights reserved.
